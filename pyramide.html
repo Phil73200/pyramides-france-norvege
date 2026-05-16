@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pyramide inversée — France vs Norvège</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f8fb;
+  --ink:#1b2430;
+  --muted:#6b7280;
+  --grid:#e8ecf2;
+  --axis:#2b2f36;
+  --fr-men:#0046bf;
+  --no-men:#65b7df;
+  --fr-women:#ed006f;
+  --no-women:#ee8fbd;
+  --gold:#c8a84b;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#0a1628;
+  font-family:'Barlow',sans-serif;
+}
+
+.deck{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+
+.slide{
+  width:min(1500px,96vw);
+  height:min(900px,94vh);
+  background:var(--bg);
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.28);
+  padding:34px 42px 28px;
+  position:relative;
+  overflow:hidden;
+}
+
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:6px;
+  background:linear-gradient(90deg,var(--fr-men),var(--gold),var(--fr-women));
+}
+
+.header{
+  text-align:center;
+  margin-bottom:16px;
+}
+
+.header h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:54px;
+  line-height:1;
+  color:#111827;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+.header .sub{
+  margin-top:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px;
+  color:#626b78;
+  letter-spacing:.5px;
+}
+
+.top-labels{
+  width:100%;
+  max-width:1240px;
+  margin:0 auto 6px;
+  display:grid;
+  grid-template-columns:1fr 130px 1fr;
+  align-items:end;
+}
+
+.side-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:34px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:1px;
+}
+
+.side-title.men{color:var(--fr-men)}
+.side-title.women{color:var(--fr-women)}
+
+.scale{
+  width:100%;
+  max-width:1240px;
+  margin:0 auto 2px;
+  display:grid;
+  grid-template-columns:120px 1fr 1fr;
+  align-items:center;
+  color:#9aa3af;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;
+  font-size:21px;
+}
+
+.scale-left,.scale-right{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  text-align:center;
+}
+.scale-left{color:var(--fr-men)}
+.scale-right{color:var(--fr-women)}
+
+.chart{
+  width:100%;
+  max-width:1240px;
+  height:610px;
+  margin:0 auto;
+  position:relative;
+  display:grid;
+  grid-template-columns:120px 1fr 1fr;
+  border-bottom:1px solid var(--grid);
+}
+
+.labels{
+  display:grid;
+  grid-template-rows:repeat(6,1fr);
+  padding-top:10px;
+  padding-bottom:10px;
+  color:#374151;
+  font-size:24px;
+  font-weight:500;
+}
+
+.label-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding-right:18px;
+}
+
+.panel{
+  position:relative;
+  display:grid;
+  grid-template-rows:repeat(6,1fr);
+  padding:10px 0;
+}
+
+.panel.left{
+  border-right:3px solid var(--axis);
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:10px 0 10px 0;
+  background:repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(100% / 6 - 1px),
+    var(--grid) calc(100% / 6),
+    var(--grid) calc(100% / 6)
+  );
+  pointer-events:none;
+}
+
+.row{
+  position:relative;
+  border-top:1px solid rgba(232,236,242,.65);
+}
+
+.row:first-child{border-top:none}
+
+.bar-group{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:100%;
+  height:52px;
+}
+
+.bar{
+  position:absolute;
+  height:22px;
+  border-radius:0;
+  transform:scaleX(0);
+  transition:transform .9s cubic-bezier(.19,1,.22,1);
+  box-shadow:0 2px 5px rgba(0,0,0,.12);
+}
+
+.bar.primary{top:2px}
+.bar.secondary{bottom:2px}
+
+.left .bar{
+  right:0;
+  transform-origin:right center;
+}
+
+.right .bar{
+  left:0;
+  transform-origin:left center;
+}
+
+.bar.animate{
+  transform:scaleX(1);
+}
+
+.value{
+  position:absolute;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;
+  font-size:22px;
+  line-height:1;
+  opacity:0;
+  transition:opacity .35s ease .4s;
+  white-space:nowrap;
+}
+
+.value.show{opacity:1}
+
+.left .value{
+  right:calc(var(--w) + 12px);
+}
+
+.right .value{
+  left:calc(var(--w) + 12px);
+}
+
+.value.primary{top:1px}
+.value.secondary{bottom:1px}
+
+.legend{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:64px;
+  margin-top:30px;
+  color:#3d4550;
+  font-size:22px;
+}
+
+.leg{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  white-space:nowrap;
+}
+
+.swatch{
+  width:25px;
+  height:25px;
+  border-radius:3px;
+}
+
+.actions{
+  position:absolute;
+  right:34px;
+  top:28px;
+  display:flex;
+  gap:10px;
+}
+
+button{
+  border:none;
+  background:#111827;
+  color:white;
+  border-radius:999px;
+  padding:10px 16px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;
+  letter-spacing:.5px;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+
+button.secondary{
+  background:white;
+  color:#111827;
+  border:1px solid #d6dbe3;
+}
+
+.note{
+  position:absolute;
+  left:42px;
+  bottom:22px;
+  color:#7b8492;
+  font-size:14px;
+}
+
+@media(max-width:900px){
+  .header h1{font-size:40px}
+  .header .sub{font-size:22px}
+  .legend{gap:20px;font-size:16px;flex-wrap:wrap}
+  .chart{grid-template-columns:88px 1fr 1fr;height:560px}
+  .scale{grid-template-columns:88px 1fr 1fr;font-size:16px}
+  .labels{font-size:18px}
+  .value{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+  <section class="slide">
+    <div class="actions">
+      <button onclick="replay()">Rejouer</button>
+      <button class="secondary" onclick="toggleValues()">Valeurs</button>
+    </div>
+
+    <div class="header">
+      <h1>Pyramide inversée – France vs Norvège</h1>
+      <div class="sub">GS+SL – Base List 2027 (BL27)</div>
+    </div>
+
+    <div class="top-labels">
+      <div class="side-title men">Hommes</div>
+      <div></div>
+      <div class="side-title women">Dames</div>
+    </div>
+
+    <div class="scale">
+      <div></div>
+      <div class="scale-left"><span>300</span><span>250</span><span>200</span><span>150</span><span>100</span><span>50</span><span>0</span></div>
+      <div class="scale-right"><span>0</span><span>50</span><span>100</span><span>150</span><span>200</span><span>250</span><span>300</span></div>
+    </div>
+
+    <div class="chart">
+      <div class="labels" id="labels"></div>
+      <div class="panel left" id="menPanel"></div>
+      <div class="panel right" id="womenPanel"></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg"><span class="swatch" style="background:var(--fr-men)"></span>France – Garçons</div>
+      <div class="leg"><span class="swatch" style="background:var(--no-men)"></span>Norvège – Garçons</div>
+      <div class="leg"><span class="swatch" style="background:var(--fr-women)"></span>France – Filles</div>
+      <div class="leg"><span class="swatch" style="background:var(--no-women)"></span>Norvège – Filles</div>
+    </div>
+
+    <div class="note">Animation HTML — données reprises depuis l’image fournie.</div>
+  </section>
+</div>
+
+<script>
+const MAX = 300;
+let valuesVisible = true;
+
+const rows = [
+  {label:'0.00–15.00', frM:11, noM:7,   frW:0,   noW:2},
+  {label:'15.01–23.00',frM:6,  noM:13,  frW:7,   noW:3},
+  {label:'23.01–30.00',frM:13, noM:19,  frW:7,   noW:13},
+  {label:'30.01–40.00',frM:16, noM:37,  frW:19,  noW:30},
+  {label:'40.01–60.00',frM:68, noM:43,  frW:47,  noW:27},
+  {label:'≥60.01',     frM:271,noM:185, frW:122, noW:112}
+];
+
+function pctWidth(value){
+  return Math.max(0, Math.min(100, value / MAX * 100));
+}
+
+function makeBar(value, color, cls){
+  const width = pctWidth(value);
+  return `
+    <div class="bar ${cls}" style="width:${width}%;background:${color}"></div>
+    <div class="value ${cls}" style="--w:${width}%;color:${color}">${value}</div>
+  `;
+}
+
+function build(){
+  const labels = document.getElementById('labels');
+  const men = document.getElementById('menPanel');
+  const women = document.getElementById('womenPanel');
+
+  labels.innerHTML = rows.map(r => `<div class="label-row">${r.label}</div>`).join('');
+
+  men.innerHTML = rows.map(r => `
+    <div class="row">
+      <div class="bar-group">
+        ${makeBar(r.frM, 'var(--fr-men)', 'primary')}
+        ${makeBar(r.noM, 'var(--no-men)', 'secondary')}
+      </div>
+    </div>
+  `).join('');
+
+  women.innerHTML = rows.map(r => `
+    <div class="row">
+      <div class="bar-group">
+        ${makeBar(r.frW, 'var(--fr-women)', 'primary')}
+        ${makeBar(r.noW, 'var(--no-women)', 'secondary')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function animate(){
+  const bars = [...document.querySelectorAll('.bar')];
+  const values = [...document.querySelectorAll('.value')];
+
+  bars.forEach(b => b.classList.remove('animate'));
+  values.forEach(v => v.classList.remove('show'));
+
+  rows.forEach((_, rowIndex) => {
+    setTimeout(() => {
+      const rowBars = document.querySelectorAll(`.panel .row:nth-child(${rowIndex + 1}) .bar`);
+      const rowValues = document.querySelectorAll(`.panel .row:nth-child(${rowIndex + 1}) .value`);
+      rowBars.forEach(b => b.classList.add('animate'));
+      if(valuesVisible) rowValues.forEach(v => v.classList.add('show'));
+    }, 250 + rowIndex * 360);
+  });
+}
+
+function replay(){
+  animate();
+}
+
+function toggleValues(){
+  valuesVisible = !valuesVisible;
+  document.querySelectorAll('.value').forEach(v => {
+    v.classList.toggle('show', valuesVisible);
+  });
+}
+
+build();
+setTimeout(animate, 400);
+</script>
+</body>
+</html>
