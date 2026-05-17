@@ -122,12 +122,21 @@ h1{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px;}
 
 <script>
 const DATA = {
-  FRA:{H:[11,6,13,16,68,271],D:[0,7,7,19,47,122],color:'#1B3A9B',label:'FRA'},
-  NOR:{H:[7,13,19,37,43,185],D:[2,3,13,30,27,112],color:'#4a4a4a',label:'NOR'},
-  SUI:{H:[9,7,18,41,50,168], D:[3,13,16,14,50,101],color:'#B22222',label:'SUI'},
+  FRA:{H:[11,6,13,16,68,120],D:[0,7,7,19,47,58],color:'#1B3A9B',label:'FRA'},
+  NOR:{H:[7,13,19,37,43,92],D:[2,3,13,30,27,41],color:'#4a4a4a',label:'NOR'},
+  SUI:{H:[9,7,18,41,50,77],D:[3,13,16,14,50,38],color:'#B22222',label:'SUI'},
 };
-const TRANCHES=['0.00–15.00','15.01–23.00','23.01–30.00','30.01–40.00','40.01–60.00','≥60.01'];
-const MAX=280;
+
+const TRANCHES=[
+  '0.00–15.00',
+  '15.01–23.00',
+  '23.01–30.00',
+  '30.01–40.00',
+  '40.01–60.00',
+  '60.01–120.00'
+];
+
+const MAX=140;
 
 function pct(v){return(v/MAX*100).toFixed(3)+'%';}
 function lighten(hex,amt){
